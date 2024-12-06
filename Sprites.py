@@ -66,3 +66,32 @@ class Bullet(pg.sprite.Sprite):
         self.rect.y -= self.speed * self.dir
         if self.rect.bottom < 0 or self.rect.top > HEIGHT:
             self.kill()  # Remove the bullet if out of bounds
+
+class Meteor(pg.sprite.Sprite):
+    """This class represents the meteors falling from the top of the screen."""
+    def __init__(self, meteors, all_sprites):
+        """Initialize a meteor object and add it to the given groups."""
+        pg.sprite.Sprite.__init__(self, meteors, all_sprites)
+        self.original_image = PGIMLOAD(path + 'meteor.png')  # Load the meteor image
+        self.rotation_angle = random.randint(0, 360)  # Random angle between 0 and 360 degrees
+        self.image = pg.transform.rotate(self.original_image, self.rotation_angle)  # Rotate the image
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, WIDTH - self.rect.width)  # Random x position
+        self.rect.y = random.randint(-100, -40)  # Start off-screen
+        self.speedy = random.randint(2, 6)  # Random vertical speed
+        self.speedx = random.choice([-2, -1, 0, 1, 2])  # Slight horizontal movement
+        self.all_sprites = all_sprites  # Reference to all_sprites group
+        self.meteors = meteors
+
+    def update(self):
+        """Updates meteor position."""
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy  # Always move downward
+
+        # Bounce off other meteors
+        collisions = pg.sprite.spritecollide(self, self.meteors, False)
+        for meteor in collisions:
+            if meteor != self:  # Ensure it's not self-collision
+                # Swap directions upon collision
+                self.speedx, meteor.speedx = meteor.speedx, self.speedx
+                self.speedy, meteor.speedy = meteor.speedy, self.speedy
