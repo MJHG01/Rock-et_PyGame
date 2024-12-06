@@ -104,3 +104,27 @@ class Game:
                 self.player.shoot()
                 
             self.player.move(dx)  # Move the player horizontally
+
+    def new_game(self):
+        """Sets up a new game."""
+        self.font = pg.font.Font(self.font_name, TEXTSIZE)  # Font for score rendering
+        self.all_sprites = pg.sprite.Group()  # All sprites group
+        self.bullets = pg.sprite.Group()  # Bullets fired by the player
+        self.meteors = pg.sprite.Group()  # Meteor sprites group
+        self.player = Player(self.all_sprites, self.bullets, self.SHOOT_SOUND, self)  # Initialize the player
+        self.spawn_meteor()  # Spawn initial meteors
+        self.playing = True  # Game is now in PLAYING state
+        self.last_spawn_time = pg.time.get_ticks()  # Track the last spawn time
+        self.level = 1  # Reset level for a new game
+        self.spawn_interval = 1500  # Start with 1 second spawn interval
+        self.enemy_type = "meteor"  # Start with meteors
+        self.run_game()  # Start the game loop
+
+    def run_game(self):
+        """Main game loop."""
+        while self.playing:
+            self.clock.tick(FPS)
+            self.events()  # Handle user inputs
+            self.update()  # Update game state
+            self.draw()  # Render the game screen
+        self.game_over_screen()  # Handle game-over state
