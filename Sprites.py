@@ -26,3 +26,9 @@ class Player(pg.sprite.Sprite):
         self.shoot_cooldown = 400  
         self.damage_reduction = 0 
         self.game = game
+
+    def move(self, dx=0):
+        """Move the player horizontally only."""
+        # Ensure the player stays within screen bounds horizontally
+        if 0 <= self.rect.x + dx <= WIDTH - self.rect.width:
+            self.rect.x += dx

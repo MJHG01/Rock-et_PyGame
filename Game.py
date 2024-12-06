@@ -84,3 +84,23 @@ class Game:
                         elif options[selected][1] == "quit":
                             pg.quit()
                             return
+
+    def events(self):
+            """Handles user input events."""
+            for event in pg.event.get():
+                if event.type == pg.QUIT:  # Exit game
+                    pg.quit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:  # Pause game
+                        self.pause()
+
+            dx = 0  # Horizontal movement
+            keys = pg.key.get_pressed()
+            if keys[pg.K_LEFT]:
+                dx -= self.player.speed
+            if keys[pg.K_RIGHT]:
+                dx += self.player.speed
+            if keys[pg.K_SPACE]:  # Player shoots
+                self.player.shoot()
+                
+            self.player.move(dx)  # Move the player horizontally
