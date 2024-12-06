@@ -128,3 +128,18 @@ class Game:
             self.update()  # Update game state
             self.draw()  # Render the game screen
         self.game_over_screen()  # Handle game-over state
+
+    def draw_score(self, score):
+        """Displays the player's score."""
+        text = self.font.render("Score: " + score + "/200", True, TEXTCOLOR)
+        self.screen.blit(text, (WIDTH - 260, 18))
+
+    def draw_level(self):
+        """Displays the current level on the screen."""
+        text = self.font.render(f"Level: {self.level}", True, TEXTCOLOR)
+        self.screen.blit(text, (WIDTH - 100, 18))
+
+    def drawHealth(self,health):
+        """This method displays user's health on the game screen."""
+        pg.draw.rect(self.screen,pg.color.Color('WHITE'),(10,10,WIDTH/2-20,30),2)
+        pg.draw.rect(self.screen,pg.color.Color('GREEN'),(15,15,health*(WIDTH/2-30)/100,20))
