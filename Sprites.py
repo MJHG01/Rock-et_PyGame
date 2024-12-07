@@ -131,3 +131,86 @@ class UFO(pg.sprite.Sprite):
         self.health -= 1
         if self.health <= 0:
             self.kill()  # Remove the UFO if health is 0
+
+class ShooterEnemy(pg.sprite.Sprite):
+    """A shooter enemy that wanders in the upper part of the screen."""
+    def __init__(self, enemies, all_sprites, player):
+        """Initialize the shooter enemy."""
+        pg.sprite.Sprite.__init__(self, enemies, all_sprites)
+        self.image = PGIMLOAD(path + 'enemyShip.png')  # Replace with your shooter enemy sprite
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, WIDTH - self.rect.width)  # Random horizontal position
+        self.rect.y = random.randint(0, HEIGHT // 4)  # Constrain to the top quarter of the screen
+        self.speedy = random.randint(1, 2)  # Slower vertical speed to keep it near the top
+        self.speedx = random.choice([-2, 0, 2])  # Some horizontal movement
+        self.player = player  # Reference to the player
+        self.health = 5  # Enemy health (can take 3 hits before dying)
+        self.last_shot_time = pg.time.get_ticks()  # Time of the last shot (in milliseconds)
+        self.shoot_interval = 1000  # Time between shots in milliseconds (1 second)
+
+    def take_damage(self, amount=1):
+        """Reduce health by the specified amount and check if the enemy is destroyed."""
+        self.health -= amount
+        if self.health <= 0:
+            self.kill()  # Remove the enemy if health is 0
+
+    def shoot_laser(self):
+        """Shoot a laser from the enemy's position."""
+        laser = Laser(self.rect.centerx, self.rect.bottom, self.player)  # Pass the player object
+        self.player.all_sprites.add(laser)  # Add the laser to the sprite group
+        self.player.enemy_lasers.add(laser)  # Add to the enemy lasers group (for collision detection)
+
+
+    def update(self):
+        """Update the enemy's position and check for collisions."""
+        self.rect.y += self.speedy
+        self.rect.x += self.speedx
+
+        # Bounce off the horizontal edges
+        if self.rect.right >= WIDTH or self.rect.left <= 0:
+            self.speedx *= -1
+
+        # Bounce at the top of the screen
+        if self.rect.top <= 0:  # If it reaches the top
+            self.speedy *= -1  # Reverse vertical direction
+
+        # Keep within the top quarter of the screen
+        if self.rect.top > HEIGHT // 3:
+            self.rect.y = HEIGHT // 3
+            self.speedy *= -1  # Reverse vertical direction if it tries to go lower
+
+        # Check collision with the player's bullets
+        hits = pg.sprite.spritecollide(self, self.player.bullets, True)  # `True` to remove the bullet
+        for hit in hits:
+            self.take_damage(1)  # Reduce health by 1 per hit
+
+        # Automatically shoot lasers based on the time interval
+        current_time = pg.time.get_ticks()
+        if current_time - self.last_shot_time >= self.shoot_interval:
+            self.shoot_laser()  # Shoot a laser
+            self.last_shot_time = current_time  # Update the last shot time
+
+class Laser(pg.sprite.Sprite):
+    """Represents a laser shot by an enemy ship."""
+    def __init__(self, x, y, player):
+        """Initialize the laser at the given position."""
+        pg.sprite.Sprite.__init__(self)
+        self.image = PGIMLOAD(path + 'laserGreen.png')  # Replace with actual laser image
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.top = y
+        self.speedy = 5  # Speed of the laser
+        self.player = player  # Reference to the player
+
+    def update(self):
+        """Update the laser's position."""
+        self.rect.y += self.speedy  # Move the laser downwards
+
+        # Remove the laser when it goes off the screen
+        if self.rect.top > HEIGHT:
+            self.kill()
+
+        # Check if the laser hits the player
+        if self.rect.colliderect(self.player.rect):  # Check if laser collides with player
+            self.player.take_damage(10)  # Reduce player's health by 10 (adjust as needed)
+            self.kill()  # Remove the laser after hitting the player
