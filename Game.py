@@ -143,3 +143,7 @@ class Game:
         """This method displays user's health on the game screen."""
         pg.draw.rect(self.screen,pg.color.Color('WHITE'),(10,10,WIDTH/2-20,30),2)
         pg.draw.rect(self.screen,pg.color.Color('GREEN'),(15,15,health*(WIDTH/2-30)/100,20))
+    
+    def spawn_meteor(self):
+        """Spawn a single meteor."""
+        Meteor(self.meteors, self.all_sprites)

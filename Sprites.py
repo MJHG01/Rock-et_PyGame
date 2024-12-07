@@ -95,7 +95,3 @@ class Meteor(pg.sprite.Sprite):
                 # Swap directions upon collision
                 self.speedx, meteor.speedx = meteor.speedx, self.speedx
                 self.speedy, meteor.speedy = meteor.speedy, self.speedy
-    
-    def spawn_meteor(self):
-        """Spawn a single meteor."""
-        Meteor(self.meteors, self.all_sprites)
