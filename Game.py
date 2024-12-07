@@ -147,3 +147,67 @@ class Game:
     def spawn_meteor(self):
         """Spawn a single meteor."""
         Meteor(self.meteors, self.all_sprites)
+
+    def power_up_selection(self):
+        """Pause the game and allow the player to select a power-up."""
+        options = [
+            ("Increase Player Speed", "speed"),
+            ("Increase Bullet Speed", "bullet_speed"),
+            ("Decrease Damage Taken", "damage_reduction")
+        ]
+        
+        selected = 0  # Default to the first option
+        option_width = 400  # Width of each option box
+        option_height = 80  # Height of each option box
+        box_margin = 20  # Margin between the boxes
+        box_padding = 10  # Padding inside each box
+        
+        # Calculate total width and height of the boxes area
+        total_width = option_width + 2 * box_padding
+        total_height = len(options) * (option_height + box_margin) + box_margin
+
+        while True:
+            self.screen.blit(self.background, (0, 0))
+            
+            font1 = pg.font.Font(self.font_name, TEXTSIZE + 20)
+            font = pg.font.Font(self.font_name, TEXTSIZE + 10)
+            level_text = font1.render(f"Level {self.level - 1} Completed", True, pg.Color("white"))
+            title_text = font.render("Choose a Power-Up", True, pg.Color("white"))
+            self.screen.blit(level_text, (WIDTH // 2 - level_text.get_width() // 2, 110))
+            self.screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 160))
+
+            # Draw individual option boxes and their text
+            for i, (text, _) in enumerate(options):
+                # Calculate the position of each box
+                box_x = WIDTH // 2 - total_width // 2
+                box_y = 250 + i * (option_height + box_margin)
+                
+                # Draw the individual box
+                if i == selected:
+                    pg.draw.rect(self.screen, pg.Color("green"), 
+                                (box_x, box_y, option_width, option_height), 3)  # Highlight selected box
+                else:
+                    pg.draw.rect(self.screen, pg.Color("white"), 
+                                (box_x, box_y, option_width, option_height), 3)  # Draw non-selected boxes
+                
+                # Display text inside each box
+                option_text = font.render(text, True, pg.Color("white"))
+                text_x = box_x + (option_width - option_text.get_width()) // 2
+                text_y = box_y + (option_height - option_text.get_height()) // 2
+                self.screen.blit(option_text, (text_x, text_y))
+
+            pg.display.flip()  # Update screen
+
+            # Event handling
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    return
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_UP:
+                        selected = (selected - 1) % len(options)  # Move up
+                    if event.key == pg.K_DOWN:
+                        selected = (selected + 1) % len(options)  # Move down
+                    if event.key == pg.K_RETURN:
+                        self.apply_power_up(options[selected][1])  # Apply selected power-up
+                        return  # Exit the selection loop
