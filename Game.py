@@ -211,3 +211,12 @@ class Game:
                     if event.key == pg.K_RETURN:
                         self.apply_power_up(options[selected][1])  # Apply selected power-up
                         return  # Exit the selection loop
+                        
+    def apply_power_up(self, power_up):
+        """Apply the selected power-up to the player."""
+        if power_up == "speed":
+            self.player.speed += 3  # Adjust speed attribute of the player
+        elif power_up == "bullet_speed":
+            self.player.shoot_cooldown = max(100, self.player.shoot_cooldown - 100)  # Decrease cooldown
+        elif power_up == "damage_reduction":
+            self.player.damage_reduction += 2  # Reduce damage taken by 5 units
