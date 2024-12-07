@@ -220,3 +220,36 @@ class Game:
             self.player.shoot_cooldown = max(100, self.player.shoot_cooldown - 100)  # Decrease cooldown
         elif power_up == "damage_reduction":
             self.player.damage_reduction += 2  # Reduce damage taken by 5 units
+
+    def update(self):
+        """Updates the game state, including level progression."""
+        self.all_sprites.update()
+
+        # Game completion check
+        if self.level == 3 and self.player.score >= 200:
+            self.game_complete()
+
+        # Handle collisions between bullets and meteors/UFOs/ShooterEnemies
+        hits = pg.sprite.groupcollide(self.meteors, self.bullets, False, True)
+        for hit in hits:
+            if isinstance(hit, UFO):
+                hit.take_damage()  # Reduce health for UFOs
+                if hit.health <= 0:  # Destroy UFO if health is 0
+                    hit.kill()
+                    self.player.score += 10  # Add score for destroyed UFO
+            else:
+                hit.kill()  # Destroy meteor immediately
+                self.player.score += 10  # Add score for destroyed meteor
+
+        # Check level progression
+        if self.player.score >= self.next_level_score:
+            self.next_level()
+        
+        # Handle collision between bullets and ShooterEnemies
+        shooter_hits = pg.sprite.groupcollide(self.shooter_enemies, self.bullets, False, True)
+        for damage in shooter_hits:
+            if isinstance(damage, ShooterEnemy):
+                damage.take_damage()
+                if damage.health <= 0:
+                    damage.kill()
+                    self.player.score += 10  # Add score for destroyed ShooterEnemy
