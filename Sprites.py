@@ -96,7 +96,7 @@ class Meteor(pg.sprite.Sprite):
                 self.speedx, meteor.speedx = meteor.speedx, self.speedx
                 self.speedy, meteor.speedy = meteor.speedy, self.speedy
 
-GALVEZ JOHN BIEN
+#GALVEZ JOHN BIEN
 class UFO(pg.sprite.Sprite):
     """This class represents the UFOs in Level 2."""
     def __init__(self, meteors, all_sprites):
