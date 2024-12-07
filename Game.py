@@ -252,4 +252,84 @@ class Game:
                 damage.take_damage()
                 if damage.health <= 0:
                     damage.kill()
-                    self.player.score += 10  # Add score for destroyed ShooterEnemy
+                    self.player.score += 20  # Add score for destroyed ShooterEnemy
+                    
+        # Player collision logic with meteors/UFOs
+        player_hits = pg.sprite.spritecollide(self.player, self.meteors, True)
+        for hit in player_hits:
+            if isinstance(hit, UFO):
+                self.player.take_damage(10)  # UFOs deal 10 damage
+            else:
+                self.player.take_damage(10)  # Meteors deal 10 damage
+            if self.player.health <= 0:
+                self.game_over_screen()
+        
+        # In your main game loop setup, create a group for the enemy lasers
+        self.player.enemy_lasers = pg.sprite.Group()
+
+        # Spawn enemies
+        now = pg.time.get_ticks()
+        if now - self.last_spawn_time > self.spawn_interval:
+            self.spawn_enemy()
+            self.last_spawn_time = now
+            
+    def game_complete(self):
+        """Pause the game and allow the player to select a power-up."""
+        options = [
+            ("Start Again", "restart"),
+            ("Quit", "quit")
+        ]
+        
+        selected = 0  # Default to the first option
+        option_width = 300  # Width of each option box
+        option_height = 70  # Height of each option box
+        box_margin = 20  # Margin between the boxes
+        box_padding = 10  # Padding inside each box
+        
+        # Calculate total width and height of the boxes area
+        total_width = option_width + 2 * box_padding
+        total_height = len(options) * (option_height + box_margin) + box_margin
+
+        while True:
+            self.screen.blit(self.complete, (0, 0))
+        
+            font1 = pg.font.Font(self.font_name, TEXTSIZE + 10)
+
+            # Draw individual option boxes and their text
+            for i, (text, _) in enumerate(options):
+                # Calculate the position of each box
+                box_x = WIDTH // 2 - total_width // 2
+                box_y = 300 + i * (option_height + box_margin)
+                
+                # Draw the individual box
+                if i == selected:
+                    pg.draw.rect(self.screen, pg.Color("green"), 
+                                (box_x, box_y, option_width, option_height), 3)  # Highlight selected box
+                else:
+                    pg.draw.rect(self.screen, pg.Color("white"), 
+                                (box_x, box_y, option_width, option_height), 3)  # Draw non-selected boxes
+                
+                # Display text inside each box
+                option_text = font1.render(text, True, pg.Color("white"))
+                text_x = box_x + (option_width - option_text.get_width()) // 2
+                text_y = box_y + (option_height - option_text.get_height()) // 2
+                self.screen.blit(option_text, (text_x, text_y))
+
+            pg.display.flip()  # Update screen
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    return
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_UP:
+                        selected = (selected - 1) % len(options)
+                    if event.key == pg.K_DOWN:
+                        selected = (selected + 1) % len(options)
+                    if event.key == pg.K_RETURN:
+                        if options[selected][1] == "restart":
+                            self.new_game()
+                            return
+                        elif options[selected][1] == "quit":
+                            pg.quit()
+                            return
