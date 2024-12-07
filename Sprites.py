@@ -95,3 +95,39 @@ class Meteor(pg.sprite.Sprite):
                 # Swap directions upon collision
                 self.speedx, meteor.speedx = meteor.speedx, self.speedx
                 self.speedy, meteor.speedy = meteor.speedy, self.speedy
+
+GALVEZ JOHN BIEN
+class UFO(pg.sprite.Sprite):
+    """This class represents the UFOs in Level 2."""
+    def __init__(self, meteors, all_sprites):
+        pg.sprite.Sprite.__init__(self, meteors, all_sprites)
+        self.image = PGIMLOAD(path + 'ufo.png')  # Replace with the actual UFO image
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, WIDTH - self.rect.width)
+        self.rect.y = random.randint(-100, -40)
+        self.speedy = random.randint(2, 6)  # Faster than meteors
+        self.speedx = random.choice([-3, -2, 2, 3])  # More aggressive horizontal movement
+        self.health = 3  # UFOs require 2 hits to destroy
+        self.meteors = meteors
+
+    def update(self):
+        """Move the UFO and bounce off edges."""
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        
+        if self.rect.right >= WIDTH or self.rect.left <= 0:
+            self.speedx *= -1  # Reverse horizontal direction
+
+        # Bounce off other meteors
+        collisions = pg.sprite.spritecollide(self, self.meteors, False)
+        for meteor in collisions:
+            if meteor != self:  # Ensure it's not self-collision
+                # Swap directions upon collision
+                self.speedx, meteor.speedx = meteor.speedx, self.speedx
+                self.speedy, meteor.speedy = meteor.speedy, self.speedy
+
+    def take_damage(self):
+        """Reduce health by 1 and check if UFO should be destroyed."""
+        self.health -= 1
+        if self.health <= 0:
+            self.kill()  # Remove the UFO if health is 0
