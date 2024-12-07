@@ -342,3 +342,37 @@ class Game:
             UFO(self.meteors, self.all_sprites)
         elif self.enemy_type == "shooter":
             ShooterEnemy(self.shooter_enemies, self.all_sprites, self.player)
+
+    def next_level(self):
+        """Advance to the next level."""
+        self.level += 1
+        self.player.health = 100  # Reset player health
+        self.player.score = 0  # Reset score
+        self.player.rect.center=(WIDTH/2,HEIGHT-self.player.rect.height + 20)  #sets initial position of player
+
+        # Clear remaining meteors
+        for meteor in self.meteors:
+            meteor.kill()  # Remove each meteor from the game
+        
+        for bullet in self.bullets:
+            bullet.kill()
+        
+        # Pause for power-up selection before proceeding
+        self.power_up_selection()
+
+        # Update enemy types and spawn rates for the new level
+        if self.level == 2:
+            self.enemy_type = "ufo"  # UFO enemies
+            self.spawn_interval = 1200  # Faster spawn rate
+        elif self.level == 3:
+            self.enemy_type = "shooter"  # ShooterEnemy for Level 3
+            self.spawn_interval = 3000  # Adjust spawn rate for shooters
+
+    def draw(self):
+        """Draws all game elements."""
+        self.screen.blit(self.background, (0, 0))  # Draw background
+        self.all_sprites.draw(self.screen)  # Draw all sprites
+        self.draw_score(str(self.player.score))  # Draw score
+        self.draw_level()
+        self.drawHealth(self.player.health)#draws player's health on the game screen
+        pg.display.flip()
