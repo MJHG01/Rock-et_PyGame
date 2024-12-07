@@ -333,3 +333,12 @@ class Game:
                         elif options[selected][1] == "quit":
                             pg.quit()
                             return
+
+    def spawn_enemy(self):
+        """Spawn enemies based on the current level."""
+        if self.enemy_type == "meteor":
+            Meteor(self.meteors, self.all_sprites)
+        elif self.enemy_type == "ufo":
+            UFO(self.meteors, self.all_sprites)
+        elif self.enemy_type == "shooter":
+            ShooterEnemy(self.shooter_enemies, self.all_sprites, self.player)
